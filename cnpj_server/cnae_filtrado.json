@@ -1,0 +1,18 @@
+{
+    "razao_social": "FFJ CONSULTORIA E TREINAMENTOS LTDA",
+    "cnpj": "61889727000166",
+    "cnae_principal": "Treinamento em desenvolvimento profissional e gerencial",
+    "cnaes_secundarios": [
+        "Comércio atacadista de roupas e acessórios para uso profissional e de segurança do trabalho",
+        "Comércio varejista de ferragens e ferramentas",
+        "Comércio varejista de materiais de construção em geral",
+        "Comércio varejista de outros produtos não especificados anteriormente",
+        "Atividades de consultoria em gestão empresarial, exceto consultoria técnica específica",
+        "Serviços de engenharia",
+        "Serviços de perícia técnica relacionados à segurança do trabalho",
+        "Aluguel de máquinas e equipamentos para construção sem operador, exceto andaimes",
+        "Aluguel de outras máquinas e equipamentos comerciais e industriais não especificados anteriormente, sem operador",
+        "Preparação de documentos e serviços especializados de apoio administrativo não especificados anteriormente",
+        "Outras atividades de ensino não especificadas anteriormente"
+    ]
+}
