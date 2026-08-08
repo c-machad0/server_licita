@@ -1,11 +1,12 @@
 import sqlite3
 
+from pprint import pprint
+
 from cnpj_server.cnpj_database import CNPJDatabase
 from pncp_server.pncp_database import PNCPDatabase
 from embeddings.embedding_service import EmbeddingService
 from matcher.matcher import Matcher
 
-from pprint import pprint
 
 cnpj = CNPJDatabase()
 
