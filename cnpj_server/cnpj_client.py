@@ -28,7 +28,6 @@ class CNPJClient:
 
         data = response.json()
 
-
         return {
 
             "razao_social":
@@ -52,20 +51,4 @@ class CNPJClient:
 
 if __name__ == '__main__':
     client = CNPJClient()
-    empresa = client.get_company_info(
-    "61889727000166"
-    )
-
-
-# dados = {
-#     "razao_social": cnpj_lido.get("razao_social"),
-#     "cnpj": cnpj_lido.get("cnpj"),
-#     "cnae_principal": cnpj_lido.get("cnae_fiscal_descricao"),
-#     "cnaes_secundarios": [
-#         cnae.get("descricao")
-#         for cnae in cnpj_lido.get("cnaes_secundarios", [])
-#     ]
-# }
-
-# with open("cnae_filtrado.json", "w", encoding="utf-8") as file:
-#     json.dump(dados, file, indent=4, ensure_ascii=False)
+    empresa = client.get_company_info("61889727000166")

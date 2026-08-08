@@ -1,18 +1,24 @@
 import requests
 from datetime import datetime, timedelta
-
+from pprint import pprint
 
 class PNCPClient:
 
     def __init__(self):
         self.__base_url = "https://pncp.gov.br/api/consulta"
         self.session = requests.Session()
+        self.session.headers.update({
+                    "Accept": "application/json",
+                    "User-Agent": "PostmanRuntime/7.43.0",
+                    "Connection": "keep-alive",
+                })
         self.date_format()
         self.data = {}
 
+
     def date_format(self):
         date_today = datetime.today()
-        future_date = date_today + timedelta(days=5)
+        future_date = date_today + timedelta(days=4)
 
         self.date_today_formatted = date_today.strftime("%Y%m%dT08:00:00")
         self.future_date_formatted = future_date.strftime("%Y%m%dT08:00:00")
@@ -22,10 +28,10 @@ class PNCPClient:
         url = f"{self.__base_url}/v1/contratacoes/proposta"
 
         params = {
+            "pagina": 1,
+            "tamanhoPagina": 20,
             "dataInicial": self.date_today_formatted,
             "dataFinal": self.future_date_formatted,
-            "pagina": 1,
-            "tamanhoPagina": 50,
             "uf": "BA",
         }
 
@@ -33,7 +39,7 @@ class PNCPClient:
             response = self.session.get(
                 url,
                 params=params,
-                timeout=60
+                timeout=(10, 60)
             )
 
             response.raise_for_status()
@@ -68,8 +74,4 @@ if __name__ == "__main__":
     client.get_contratacoes() # Captura todas as licitações
     filter_response = client.filtrar_contratacoes() # Filtra somente as informações necessárias
 
-    # with open("contratacoes.json", "w", encoding="utf-8") as file:
-    #     json.dump(response, file, indent=4, ensure_ascii=False)
-
-    # with open("contratacoes_filtradas.json", "w", encoding="utf-8") as file:
-    #    json.dump(filter_response, file, indent=4, ensure_ascii=False)
+    pprint(filter_response)

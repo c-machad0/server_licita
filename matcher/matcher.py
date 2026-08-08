@@ -15,12 +15,7 @@ class Matcher:
         self.licitacao_db = PNCPDatabase()
 
 
-
-    def cosine_similarity(
-            self,
-            vector_a,
-            vector_b
-        ):
+    def cosine_similarity(self, vector_a, vector_b):
 
         """
         Calcula similaridade entre dois embeddings
@@ -33,32 +28,22 @@ class Matcher:
         """
 
         a = np.array(vector_a)
-
         b = np.array(vector_b)
 
-
-        similarity = np.dot(a,b) / (
-            np.linalg.norm(a) *
-            np.linalg.norm(b)
-        )
-
+        similarity = np.dot(a,b) / (np.linalg.norm(a) * np.linalg.norm(b))
 
         return similarity
-
 
 
     def get_companies_embeddings(self):
 
         companies = self.company_db.get_all_companies()
 
-
         result = []
-
 
         for company in companies:
 
             if company.get("embedding"):
-
 
                 result.append({
 
@@ -73,24 +58,18 @@ class Matcher:
 
                 })
 
-
         return result
-
 
 
     def get_bids_embeddings(self):
 
         bids = self.licitacao_db.list_db()
 
-
         result = []
-
 
         for bid in bids:
 
-
             if bid.get("embedding"):
-
 
                 result.append({
 
@@ -103,6 +82,9 @@ class Matcher:
                     "municipio":
                         bid["municipio"],
 
+                    "modalidade":
+                        bid["modalidade"],
+
                     "embedding":
                         json.loads(
                             bid["embedding"]
@@ -110,17 +92,10 @@ class Matcher:
 
                 })
 
-
         return result
 
 
-
-
-    def match_company_bid(
-            self,
-            company_id=None,
-            threshold=0.70
-        ):
+    def match_company_bid(self, company_id=None, threshold=0.70):
 
         """
         Retorna licitações compatíveis
@@ -130,57 +105,46 @@ class Matcher:
             percentual mínimo de similaridade
         """
 
-
         companies = self.get_companies_embeddings()
 
         bids = self.get_bids_embeddings()
 
-
         matches = []
 
-
         for company in companies:
-
 
             if company_id and company["id"] != company_id:
                 continue
 
-
-
             for bid in bids:
-
 
                 score = self.cosine_similarity(
                     company["embedding"],
                     bid["embedding"]
                 )
 
-
                 if score >= threshold:
-
 
                     matches.append({
 
                         "empresa":
                             company["razao_social"],
 
-
                         "licitacao":
                             bid["objeto"],
 
+                        "modalidade":
+                            bid["modalidade"],
 
                         "municipio":
                             bid["municipio"],
-
 
                         "similaridade":
                             round(
                                 score * 100,
                                 2
                             )
-
                     })
-
 
         return sorted(
             matches,
@@ -189,21 +153,15 @@ class Matcher:
         )
 
 
-
-
 if __name__ == "__main__":
 
-
     matcher = Matcher()
-
 
     resultados = matcher.match_company_bid(
         threshold=0.75
     )
 
-
     for item in resultados:
-
 
         print("-"*50)
 
@@ -212,14 +170,14 @@ if __name__ == "__main__":
 Empresa:
 {item['empresa']}
 
-
 Licitação:
 {item['licitacao']}
-
 
 Município:
 {item['municipio']}
 
+Modaliade:
+{item['modalidade']}
 
 Compatibilidade:
 {item['similaridade']}%

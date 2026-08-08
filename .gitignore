@@ -175,8 +175,9 @@ pyrightconfig.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python
 
-cnpj_server\cnae_filtrado.json
+cnae_filtrado.json
 contratacoes_filtradas.json
 contratacoes.json
 teste.py
 teste2.py
+databases/
