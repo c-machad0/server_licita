@@ -13,44 +13,30 @@ class EmbeddingService:
         self.embedding_client = EmbeddingClient()
 
 
-
     def generate_company_embeddings(self):
 
         companies = self.company_db.get_all_companies()
 
-        print(
-            f"{len(companies)} empresas encontradas"
-        )
-
+        print(f"{len(companies)} empresas encontradas")
 
         for company in companies:
 
             if company.get("embedding"):
                 continue
 
-
             text = f"""
-            Empresa:
-            {company['razao_social']}
+                Atividades econômicas da empresa:
 
-            CNAE Principal:
-            {company['cnae_principal']}
+                Atividade principal:
+                {company['cnae_principal']}
 
-            CNAEs Secundários:
-            {", ".join(company['cnaes_secundarios'])}
-            """
+                Atividades secundárias:
+                {", ".join(company['cnaes_secundarios'])}
+                """
 
+            embedding = self.embedding_client.embed(text)
 
-            embedding = self.embedding_client.embed(
-                text
-            )
-
-
-            self.company_db.update_embedding(
-                company["id"],
-                embedding
-            )
-
+            self.company_db.update_embedding(company["id"], embedding)
 
 
     def generate_bid_embeddings(self):
@@ -62,28 +48,16 @@ class EmbeddingService:
                 continue
             
             text=f"""
-
-            Objeto:
+            Objeto da contratação:
             {licitacao['objeto']}
-
-
-            Modalidade:
-            {licitacao['modalidade']}
-
-
-            Município:
-            {licitacao['municipio']}
             """
             embedding=self.embedding_client.embed(text)
 
-            self.licitacao_db.update_embedding(
-                licitacao["id"],
-                embedding
-            )
+            self.licitacao_db.update_embedding(licitacao["id"], embedding)
+
 
 if __name__ == '__main__':
     service = EmbeddingService()
-
 
     service.generate_company_embeddings()
 

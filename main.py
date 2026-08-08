@@ -5,6 +5,7 @@ from pncp_server.pncp_database import PNCPDatabase
 from embeddings.embedding_service import EmbeddingService
 from matcher.matcher import Matcher
 
+from pprint import pprint
 
 cnpj = CNPJDatabase()
 
@@ -14,7 +15,7 @@ except sqlite3.OperationalError as op_error:
     print(f'{op_error} - Tabela já existente')
 
 try:
-    cnpj.insert_company("61889727000166")
+    cnpj.insert_company("50985285000135")
 except sqlite3.IntegrityError as int_error:
     print(f'{int_error} - Dados de empresa, ja existentes')
 
@@ -31,6 +32,6 @@ embedding.generate_bid_embeddings()
 
 matcher = Matcher()
 
-print(
+pprint(
     matcher.match_company_bid()
 )

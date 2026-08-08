@@ -5,7 +5,6 @@ from cnpj_server.cnpj_database import CNPJDatabase
 from pncp_server.pncp_database import PNCPDatabase
 
 
-
 class Matcher:
 
 
@@ -82,6 +81,9 @@ class Matcher:
                     "municipio":
                         bid["municipio"],
 
+                    "unidade":
+                        bid["unidade"],
+
                     "modalidade":
                         bid["modalidade"],
 
@@ -95,7 +97,7 @@ class Matcher:
         return result
 
 
-    def match_company_bid(self, company_id=None, threshold=0.70):
+    def match_company_bid(self, company_id=None, threshold=0.50):
 
         """
         Retorna licitações compatíveis
@@ -118,10 +120,7 @@ class Matcher:
 
             for bid in bids:
 
-                score = self.cosine_similarity(
-                    company["embedding"],
-                    bid["embedding"]
-                )
+                score = self.cosine_similarity(company["embedding"], bid["embedding"])
 
                 if score >= threshold:
 
@@ -136,14 +135,13 @@ class Matcher:
                         "modalidade":
                             bid["modalidade"],
 
+                        "unidade":
+                            bid["unidade"],
+
                         "municipio":
                             bid["municipio"],
 
-                        "similaridade":
-                            round(
-                                score * 100,
-                                2
-                            )
+                        "similaridade": float(round(score * 100, 2))
                     })
 
         return sorted(
@@ -158,7 +156,7 @@ if __name__ == "__main__":
     matcher = Matcher()
 
     resultados = matcher.match_company_bid(
-        threshold=0.75
+        threshold=0.50
     )
 
     for item in resultados:
@@ -175,6 +173,9 @@ Licitação:
 
 Município:
 {item['municipio']}
+
+Unidade:
+{item['unidade']}
 
 Modaliade:
 {item['modalidade']}

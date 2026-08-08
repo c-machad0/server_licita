@@ -29,7 +29,7 @@ class PNCPClient:
 
         params = {
             "pagina": 1,
-            "tamanhoPagina": 20,
+            "tamanhoPagina": 50,
             "dataInicial": self.date_today_formatted,
             "dataFinal": self.future_date_formatted,
             "uf": "BA",
