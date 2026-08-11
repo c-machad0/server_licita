@@ -15,28 +15,21 @@ class EmbeddingService:
 
     def generate_company_embeddings(self):
 
-        companies = self.company_db.get_all_companies()
+        company = self.company_db.get_company()
 
-        print(f"{len(companies)} empresas encontradas")
+        text = f"""
+            Atividades econômicas da empresa:
 
-        for company in companies:
+            Atividade principal:
+            {company['cnae_principal']}
 
-            if company.get("embedding"):
-                continue
+            Atividades secundárias:
+            {", ".join(company['cnaes_secundarios'])}
+            """
 
-            text = f"""
-                Atividades econômicas da empresa:
+        embedding = self.embedding_client.embed(text)
 
-                Atividade principal:
-                {company['cnae_principal']}
-
-                Atividades secundárias:
-                {", ".join(company['cnaes_secundarios'])}
-                """
-
-            embedding = self.embedding_client.embed(text)
-
-            self.company_db.update_embedding(company["id"], embedding)
+        self.company_db.update_embedding(company["id"], embedding)
 
 
     def generate_bid_embeddings(self):

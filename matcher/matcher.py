@@ -34,28 +34,18 @@ class Matcher:
         return similarity
 
 
-    def get_companies_embeddings(self):
+    def get_company_embedding(self):
 
-        companies = self.company_db.get_all_companies()
+        company = self.company_db.get_company()
 
-        result = []
+        if not company["embedding"]:
+            return None
 
-        for company in companies:
-
-            if company.get("embedding"):
-
-                result.append({
-
-                    "id":
-                        company["id"],
-
-                    "razao_social":
-                        company["razao_social"],
-
-                    "embedding":
-                        json.loads(company["embedding"])
-
-                })
+        result = {
+            "id": company["id"],
+            "razao_social": company["razao_social"],
+            "embedding": json.loads(company["embedding"])
+            }
 
         return result
 
@@ -87,6 +77,12 @@ class Matcher:
                     "modalidade":
                         bid["modalidade"],
 
+                    "data_abertura":
+                        bid["data_abertura"],
+
+                    "data_encerramento":
+                        bid["data_encerramento"],
+
                     "embedding":
                         json.loads(
                             bid["embedding"]
@@ -97,7 +93,7 @@ class Matcher:
         return result
 
 
-    def match_company_bid(self, company_id=None, threshold=0.50):
+    def match_company_bid(self, threshold=0.50):
 
         """
         Retorna licitações compatíveis
@@ -107,42 +103,31 @@ class Matcher:
             percentual mínimo de similaridade
         """
 
-        companies = self.get_companies_embeddings()
+        company = self.get_company_embedding()
 
         bids = self.get_bids_embeddings()
 
         matches = []
 
-        for company in companies:
+        for bid in bids:
 
-            if company_id and company["id"] != company_id:
-                continue
+            score = self.cosine_similarity(
+            company["embedding"],
+            bid["embedding"]
+            )
 
-            for bid in bids:
+            if score >= threshold:
 
-                score = self.cosine_similarity(company["embedding"], bid["embedding"])
-
-                if score >= threshold:
-
-                    matches.append({
-
-                        "empresa":
-                            company["razao_social"],
-
-                        "licitacao":
-                            bid["objeto"],
-
-                        "modalidade":
-                            bid["modalidade"],
-
-                        "unidade":
-                            bid["unidade"],
-
-                        "municipio":
-                            bid["municipio"],
-
-                        "similaridade": float(round(score * 100, 2))
-                    })
+                matches.append({
+                    "empresa": company["razao_social"],
+                    "licitacao": bid["objeto"],
+                    "modalidade": bid["modalidade"],
+                    "unidade": bid["unidade"],
+                    "municipio": bid["municipio"],
+                    "data_abertura": bid["data_abertura"],
+                    "data_encerramento": bid["data_encerramento"],
+                    "similaridade": float(round(score * 100, 2))
+                })
 
         return sorted(
             matches,
@@ -179,6 +164,12 @@ Unidade:
 
 Modaliade:
 {item['modalidade']}
+
+Data de abertura:
+{item['data_abertura']}
+
+Data de encerramento:
+{item['data_encerramento']}
 
 Compatibilidade:
 {item['similaridade']}%

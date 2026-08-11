@@ -19,8 +19,6 @@ class CNPJDatabase:
 
         db_path = DATABASE_DIR / "empresas.db"
 
-        print(f"Banco empresas: {db_path}")
-
         self.db_connector = sqlite3.connect(db_path)
 
         self.db_connector.row_factory = sqlite3.Row
@@ -49,13 +47,22 @@ class CNPJDatabase:
         self.db_connector.commit()
 
 
+    def clear_company(self):
+
+        self.db_cursor.execute(
+            "DELETE FROM empresas"
+        )
+
+        self.db_connector.commit()
+        
+
     def insert_company(self, cnpj):
 
         data = self.client.get_company_info(cnpj)
 
         self.db_cursor.execute(
             """
-            INSERT INTO empresas
+            INSERT OR IGNORE INTO empresas
 
             (
                 cnpj,
@@ -71,7 +78,7 @@ class CNPJDatabase:
                 data["cnpj"],
                 data["razao_social"],
                 data["cnae_principal"],
-                json.dumps(
+                json.dumps(                 # Transforma um list em string JSON
                     data["cnaes_secundarios"],
                     ensure_ascii=False
                 )
@@ -81,48 +88,45 @@ class CNPJDatabase:
         self.db_connector.commit()
 
 
-    def get_all_companies(self):
+    def get_company(self):
 
         self.db_cursor.execute(
             """
-            SELECT *
-            FROM empresas
+            SELECT * FROM empresas
+            LIMIT 1
             """
         )
 
-        companies = []
+        row = self.db_cursor.fetchone()
 
-        for row in self.db_cursor.fetchall():
-            company = dict(row)
+        if row is None:
+            return None
 
-            company["cnaes_secundarios"] = json.loads(
-                company["cnaes_secundarios"]
-            )
+        company = dict(row)
 
-            companies.append(company)
+        company["cnaes_secundarios"] = json.loads(
+            company["cnaes_secundarios"]
+        )
 
-        return companies
+        return company
 
 
-    def update_embedding(self, id, embedding):
+    def update_embedding(self, company_id, embedding):
 
         self.db_cursor.execute(
             """
             UPDATE empresas
-
             SET embedding = ?
-
             WHERE id = ?
-
             """,
-
             (
                 json.dumps(embedding),
-                id
+                company_id
             )
         )
 
         self.db_connector.commit()
+
 
 if __name__ == "__main__":
 

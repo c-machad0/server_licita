@@ -1,5 +1,4 @@
 import sqlite3
-
 from pprint import pprint
 
 from cnpj_server.cnpj_database import CNPJDatabase
@@ -10,29 +9,27 @@ from matcher.matcher import Matcher
 
 cnpj = CNPJDatabase()
 
-try:
-    cnpj.create_db()
-except sqlite3.OperationalError as op_error:
-    print(f'{op_error} - Tabela já existente')
-
-try:
-    cnpj.insert_company("50985285000135")
-except sqlite3.IntegrityError as int_error:
-    print(f'{int_error} - Dados de empresa, ja existentes')
+cnpj.create_db()
+cnpj.clear_company()
+cnpj.insert_company("61889727000166")
 
 
 pncp = PNCPDatabase()
+
 pncp.create_db()
 pncp.update_db()
 
 
 embedding = EmbeddingService()
+
 embedding.generate_company_embeddings()
 embedding.generate_bid_embeddings()
 
 
 matcher = Matcher()
 
-pprint(
-    matcher.match_company_bid()
+resultados = matcher.match_company_bid(
+    threshold=0.50
 )
+
+pprint(resultados)

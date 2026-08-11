@@ -12,7 +12,6 @@ class PNCPClient:
         self.session.headers.update({
                     "Accept": "application/json",
                     "User-Agent": "PostmanRuntime/7.43.0",
-                    "Connection": "keep-alive",
                 })
         self.date_format()
         self.data = {}
@@ -52,7 +51,7 @@ class PNCPClient:
         except requests.exceptions.RequestException as e:
             print(f"Erro ao consultar a API: {e}")
             self.data = {}
-            return {}
+            return "Não existem licitações"
 
 
     def filtrar_contratacoes(self):

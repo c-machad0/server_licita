@@ -1,3 +1,5 @@
+from pprint import pprint
+
 import requests
 
 
@@ -52,3 +54,5 @@ class CNPJClient:
 if __name__ == '__main__':
     client = CNPJClient()
     empresa = client.get_company_info("61889727000166")
+
+    pprint(empresa)

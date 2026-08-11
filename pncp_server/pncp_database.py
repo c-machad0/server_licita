@@ -98,7 +98,7 @@ class PNCPDatabase:
         ]
 
 
-    def update_embedding(self, id, embedding):
+    def update_embedding(self, bid_id, embedding):
 
         self.db_cursor.execute(
             """
@@ -106,10 +106,9 @@ class PNCPDatabase:
             SET embedding = ?
             WHERE id = ?
             """,
-
             (
                 json.dumps(embedding),
-                id
+                bid_id
             )
         )
 
