@@ -181,3 +181,5 @@ contratacoes.json
 teste.py
 teste2.py
 databases/
+.env
+match.json

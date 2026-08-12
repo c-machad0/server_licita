@@ -1,11 +1,12 @@
-import sqlite3
+# import json
+import asyncio
 from pprint import pprint
 
 from cnpj_server.cnpj_database import CNPJDatabase
 from pncp_server.pncp_database import PNCPDatabase
 from embeddings.embedding_service import EmbeddingService
-from matcher.matcher import Matcher
-
+# from matcher.matcher import Matcher
+from notification.notify import Notify
 
 cnpj = CNPJDatabase()
 
@@ -25,11 +26,15 @@ embedding = EmbeddingService()
 embedding.generate_company_embeddings()
 embedding.generate_bid_embeddings()
 
+notification = Notify()
+asyncio.run(notification.send_message())
 
-matcher = Matcher()
+# matcher = Matcher()
 
-resultados = matcher.match_company_bid(
-    threshold=0.50
-)
+# resultados = matcher.match_company_bid(
+#     threshold=0.50
+# )
 
-pprint(resultados)
+# with open('match.json', 'w', encoding='utf-8') as file:
+#     json.dump(resultados, file, ensure_ascii=False, indent=4)
+
