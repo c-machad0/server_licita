@@ -2,39 +2,24 @@
 import asyncio
 from pprint import pprint
 
-from cnpj_server.cnpj_database import CNPJDatabase
+from cnpj_server.cnpj_client import CNPJClient
 from pncp_server.pncp_database import PNCPDatabase
 from embeddings.embedding_service import EmbeddingService
 # from matcher.matcher import Matcher
 from notification.notify import Notify
 
-cnpj = CNPJDatabase()
 
-cnpj.create_db()
-cnpj.clear_company()
-cnpj.insert_company("61889727000166")
+def main():
+    client_cnpj = CNPJClient()
+    service_embedding = EmbeddingService()
 
+    cnpj = '61889727000166'
 
-pncp = PNCPDatabase()
+    company = client_cnpj.get_company_info(cnpj)
 
-pncp.create_db()
-pncp.update_db()
+    company["embedding"] = service_embedding.generate_company_embeddings(company)
 
+    pprint(company)
 
-embedding = EmbeddingService()
-
-embedding.generate_company_embeddings()
-embedding.generate_bid_embeddings()
-
-notification = Notify()
-asyncio.run(notification.send_message())
-
-# matcher = Matcher()
-
-# resultados = matcher.match_company_bid(
-#     threshold=0.50
-# )
-
-# with open('match.json', 'w', encoding='utf-8') as file:
-#     json.dump(resultados, file, ensure_ascii=False, indent=4)
+run = main()
 

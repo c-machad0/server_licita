@@ -1,21 +1,18 @@
 from .embedding_client import EmbeddingClient
 
 from pncp_server.pncp_database import PNCPDatabase
-from cnpj_server.cnpj_database import CNPJDatabase
+from cnpj_server.cnpj_database import CNPJClient
 
 
 class EmbeddingService:
 
     def __init__(self):
 
-        self.company_db = CNPJDatabase()
         self.licitacao_db = PNCPDatabase()
         self.embedding_client = EmbeddingClient()
 
 
-    def generate_company_embeddings(self):
-
-        company = self.company_db.get_company()
+    def generate_company_embeddings(self, company):
 
         text = f"""
             Atividades econômicas da empresa:
@@ -27,9 +24,7 @@ class EmbeddingService:
             {", ".join(company['cnaes_secundarios'])}
             """
 
-        embedding = self.embedding_client.embed(text)
-
-        self.company_db.update_embedding(company["id"], embedding)
+        return self.embedding_client.embed(text)
 
 
     def generate_bid_embeddings(self):
