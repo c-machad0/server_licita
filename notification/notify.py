@@ -16,12 +16,10 @@ class Notify:
         self.bot = Bot(token=self.token)
 
         self.message_formatter = Formatter()
-        matcher = Matcher()
-        self.matcher = matcher.match_company_bid(threshold=0.50)
 
 
-    async def send_message(self):
-        text_formatted = self.message_formatter.formatter_message(self.matcher)
+    async def send_message(self, matcher):
+        text_formatted = self.message_formatter.formatter_message(matcher)
         
         await self.bot.send_message(
             chat_id=self.chat_id,

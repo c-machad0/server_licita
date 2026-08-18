@@ -25,7 +25,7 @@ class PNCPClient:
         self.future_date_formatted = future_date.strftime("%Y%m%dT08:00:00")
 
 
-    def get_contratacoes(self):
+    def get_pncp_contracts(self):
         url = f"{self.__base_url}/v1/contratacoes/proposta"
 
         params = {
@@ -46,15 +46,19 @@ class PNCPClient:
             response.raise_for_status()
 
             self.data = response.json()
-            return self.data
+
+            if self.data:
+                filter_contracts = self.filter_pncp_contracts()
+
+                return filter_contracts
 
         except requests.exceptions.RequestException as e:
             print(f"Erro ao consultar a API: {e}")
             self.data = {}
-            return "Não existem licitações"
+            return []
 
 
-    def filtrar_contratacoes(self):
+    def filter_pncp_contracts(self):
 
         return [
             {
@@ -72,7 +76,7 @@ class PNCPClient:
 if __name__ == "__main__":
 
     client = PNCPClient()
-    client.get_contratacoes() # Captura todas as licitações
-    filter_response = client.filtrar_contratacoes() # Filtra somente as informações necessárias
+    filter_response = client.get_pncp_contracts() # Captura todas as licitações
+    # filter_response = client.filter_pncp_contracts() # Filtra somente as informações necessárias
 
     pprint(filter_response)

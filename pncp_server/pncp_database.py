@@ -50,9 +50,9 @@ class PNCPDatabase:
     def update_db(self):
 
         client = PNCPClient()
-        client.get_contratacoes()
+        pncp_response = client.get_pncp_contracts()
 
-        for item in client.filtrar_contratacoes():
+        for item in pncp_response:
 
             self.db_cursor.execute(
                 """
@@ -111,9 +111,14 @@ class PNCPDatabase:
                 bid_id
             )
         )
-
+        
         self.db_connector.commit()
 
+
+    def run_database(self):
+        self.create_db()
+        self.update_db()
+        
 
 if __name__ == "__main__":
 

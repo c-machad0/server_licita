@@ -1,7 +1,8 @@
+import json
+
 from .embedding_client import EmbeddingClient
 
 from pncp_server.pncp_database import PNCPDatabase
-from cnpj_server.cnpj_database import CNPJClient
 
 
 class EmbeddingService:
@@ -27,21 +28,26 @@ class EmbeddingService:
         return self.embedding_client.embed(text)
 
 
-    def generate_bid_embeddings(self):
-        licitacoes = self.licitacao_db.list_db()
+    def generate_bid_embeddings(self, bids):
 
-        for licitacao in licitacoes:
+        for bid in bids:
 
-            if licitacao.get("embedding"):
+            if bid.get("embedding"):
                 continue
-            
-            text=f"""
-            Objeto da contratação:
-            {licitacao['objeto']}
-            """
-            embedding=self.embedding_client.embed(text)
 
-            self.licitacao_db.update_embedding(licitacao["id"], embedding)
+            text = f"""
+            Objeto da contratação:
+            {bid['objeto']}
+            """
+
+            embedding = self.embedding_client.embed(text)
+
+            self.licitacao_db.update_embedding(
+                bid["id"],
+                embedding
+            )
+
+            bid["embedding"] = json.dumps(embedding)
 
 
 if __name__ == '__main__':

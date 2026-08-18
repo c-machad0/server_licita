@@ -1,18 +1,21 @@
 import json
 import numpy as np
 
-from cnpj_server.cnpj_database import CNPJDatabase
+from cnpj_server.cnpj_client import CNPJClient
+from embeddings.embedding_service import EmbeddingService
 from pncp_server.pncp_database import PNCPDatabase
 
 
 class Matcher:
 
 
-    def __init__(self):
+    def __init__(self, cnpj):
 
-        self.company_db = CNPJDatabase()
+        self.company_data = CNPJClient(cnpj)
         self.licitacao_db = PNCPDatabase()
-
+        self.licitacao_db.run_database()
+        self.service_embeddings = EmbeddingService()
+        
 
     def cosine_similarity(self, vector_a, vector_b):
 
@@ -36,23 +39,18 @@ class Matcher:
 
     def get_company_embedding(self):
 
-        company = self.company_db.get_company()
+        company = self.company_data.get_company_info()
 
-        if not company["embedding"]:
-            return None
+        company["embedding"] = self.service_embeddings.generate_company_embeddings(company)
 
-        result = {
-            "id": company["id"],
-            "razao_social": company["razao_social"],
-            "embedding": json.loads(company["embedding"])
-            }
-
-        return result
+        return company
 
 
     def get_bids_embeddings(self):
 
         bids = self.licitacao_db.list_db()
+
+        self.service_embeddings.generate_bid_embeddings(bids)
 
         result = []
 
@@ -93,7 +91,7 @@ class Matcher:
         return result
 
 
-    def match_company_bid(self, threshold=0.50):
+    def match_company_bid(self):
 
         """
         Retorna licitações compatíveis
@@ -107,6 +105,8 @@ class Matcher:
 
         bids = self.get_bids_embeddings()
 
+        threshold=0.50
+
         matches = []
 
         for bid in bids:
@@ -119,7 +119,6 @@ class Matcher:
             if score >= threshold:
 
                 matches.append({
-                    "empresa": company["razao_social"],
                     "licitacao": bid["objeto"],
                     "modalidade": bid["modalidade"],
                     "unidade": bid["unidade"],

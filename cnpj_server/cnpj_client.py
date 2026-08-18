@@ -5,7 +5,7 @@ import requests
 
 class CNPJClient:
 
-    def __init__(self):
+    def __init__(self, cnpj):
 
         self.__base_url = "https://brasilapi.com.br/api/"
 
@@ -16,10 +16,12 @@ class CNPJClient:
             "Accept": "application/json",
         })
 
+        self.cnpj = cnpj
 
-    def get_company_info(self, cnpj):
 
-        url = f"{self.__base_url}cnpj/v1/{cnpj}"
+    def get_company_info(self):
+
+        url = f"{self.__base_url}cnpj/v1/{self.cnpj}"
 
         response = self.session.get(
             url,
