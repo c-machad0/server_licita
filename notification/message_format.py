@@ -1,37 +1,21 @@
-# import json
-# from pprint import pprint
 
-# path = 'C:\\Users\\Christian\\Desktop\\Python\\Projetos\\server_licita\\match.json'
-
-# with open(path, 'r', encoding='utf-8') as file:
-#     file_read = json.load(file)
 
 class Formatter:
 
-    def __init__(self):
-        pass
-
-
     def formatter_message(self, data):
-        for licitacoes in data:
 
-            text = f"""
+            return f"""
             🔔 Nova oportunidade encontrada!
 
-            🏢 Empresa:
-            {licitacoes.get('empresa')}
-
             📋 Licitação:
-            {licitacoes.get('licitacao')}
+            {data.get('licitacao')}
 
             📌 Modalidade:
-            {licitacoes.get('modalidade')}
+            {data.get('modalidade')}
 
             📍 Município:
-            {licitacoes.get('municipio')}
+            {data.get('municipio')}
 
             🎯 Similaridade:
-            {licitacoes.get('similaridade')}
+            {data.get('similaridade')}
             """
-
-        return text

@@ -1,10 +1,7 @@
-# import json
 import asyncio
+
 from pprint import pprint
 
-from cnpj_server.cnpj_client import CNPJClient
-from pncp_server.pncp_database import PNCPDatabase
-from embeddings.embedding_service import EmbeddingService
 from matcher.matcher import Matcher
 from notification.notify import Notify
 

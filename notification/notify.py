@@ -2,9 +2,11 @@ import os
 
 from .message_format import Formatter
 
-from matcher.matcher import Matcher
-
 from telegram import Bot
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
 class Notify:
@@ -19,9 +21,11 @@ class Notify:
 
 
     async def send_message(self, matcher):
-        text_formatted = self.message_formatter.formatter_message(matcher)
-        
-        await self.bot.send_message(
-            chat_id=self.chat_id,
-            text=text_formatted
-        )
+        for bid in matcher:
+
+            text_formatted = self.message_formatter.formatter_message(bid)
+            
+            await self.bot.send_message(
+                chat_id=self.chat_id,
+                text=text_formatted
+            )
