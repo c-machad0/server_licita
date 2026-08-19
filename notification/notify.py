@@ -1,10 +1,9 @@
 import os
 
-from .message_format import Formatter
-
+from dotenv import load_dotenv
 from telegram import Bot
 
-from dotenv import load_dotenv
+from .message_format import Formatter
 
 load_dotenv()
 
@@ -12,18 +11,25 @@ load_dotenv()
 class Notify:
 
     def __init__(self):
-        self.token = os.getenv('TELEGRAM_TOKEN')
+        self.telegram_token = os.getenv('TELEGRAM_TOKEN')
         self.chat_id = os.getenv('TELEGRAM_CHAT_ID')
 
-        self.bot = Bot(token=self.token)
+        self.bot = Bot(token=self.telegram_token)
 
         self.message_formatter = Formatter()
 
 
-    async def send_message(self, matcher):
-        for bid in matcher:
+    async def send_message(self, matches):
+        """
+        Envia uma notificação no Telegram para cada licitação compatível.
 
-            text_formatted = self.message_formatter.formatter_message(bid)
+        Args:
+            matches: Lista de licitações compatíveis com a empresa.
+        """
+        
+        for bid in matches:
+
+            text_formatted = self.message_formatter.format_message(bid)
             
             await self.bot.send_message(
                 chat_id=self.chat_id,

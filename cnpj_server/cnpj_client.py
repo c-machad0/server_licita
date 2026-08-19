@@ -19,7 +19,16 @@ class CNPJClient:
         self.cnpj = cnpj
 
 
-    def get_company_info(self):
+    def get_company_info(self) -> dict:
+        """
+        Consulta a BrasilAPI utilizando o CNPJ configurado e retorna
+        as principais informações cadastrais e atividades econômicas
+        da empresa.
+
+        Returns:
+            dict: Dados da empresa, incluindo razão social, CNPJ,
+            CNAE principal e CNAEs secundários.
+        """
 
         url = f"{self.__base_url}cnpj/v1/{self.cnpj}"
 
@@ -54,7 +63,7 @@ class CNPJClient:
         }
 
 if __name__ == '__main__':
-    client = CNPJClient()
-    empresa = client.get_company_info("61889727000166")
+    client = CNPJClient("61889727000166")
+    empresa = client.get_company_info()
 
     pprint(empresa)

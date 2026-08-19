@@ -15,6 +15,15 @@ class EmbeddingClient:
         )
 
     def embed(self, text: str) -> list[float]:
+        """
+        Gera um embedding para o texto informado usando a API da OpenAI.
+
+        Args:
+            text: Texto que será convertido em embedding.
+
+        Returns:
+            list[float]: Vetor numérico correspondente ao texto.
+        """
 
         response = self.client.embeddings.create(
             model="text-embedding-3-small",

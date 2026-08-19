@@ -1,35 +1,37 @@
-import sqlite3
 import json
-
+import sqlite3
 from pathlib import Path
 
 from .pncp_client import PNCPClient
 
 
 
-class PNCPDatabase:
+class BidDatabase:
 
 
     def __init__(self):
 
-        BASE_DIR = Path(__file__).resolve().parent.parent
+        base_dir = Path(__file__).resolve().parent.parent
 
-        DATABASE_DIR = BASE_DIR / "databases"
+        database_dir = base_dir / "databases"
 
-        DATABASE_DIR.mkdir(exist_ok=True)
+        database_dir.mkdir(exist_ok=True)
 
-        db_path = DATABASE_DIR / "licitacoes.db"
+        db_path = database_dir / "licitacoes.db"
 
-        self.db_connector = sqlite3.connect(db_path)
+        self.connection = sqlite3.connect(db_path)
 
-        self.db_connector.row_factory = sqlite3.Row
+        self.connection.row_factory = sqlite3.Row
 
-        self.db_cursor = self.db_connector.cursor()
+        self.cursor = self.connection.cursor()
 
 
     def create_db(self):
+        """
+        Cria a tabela de licitações caso ela ainda não exista.
+        """
 
-        self.db_cursor.execute(
+        self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS licitacoes(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,17 +46,21 @@ class PNCPDatabase:
             """
         )
 
-        self.db_connector.commit()
+        self.connection.commit()
 
 
-    def update_db(self):
+    def sync_bids(self):
+        """
+        Consulta as licitações disponíveis no PNCP e sincroniza os dados
+        com a tabela local de licitações.
+        """
 
         client = PNCPClient()
-        pncp_response = client.get_pncp_contracts()
+        pncp_response = client.get_pncp_bids()
 
         for item in pncp_response:
 
-            self.db_cursor.execute(
+            self.cursor.execute(
                 """
                 INSERT OR IGNORE INTO licitacoes
 
@@ -81,12 +87,18 @@ class PNCPDatabase:
                 )
             )
 
-        self.db_connector.commit()
+        self.connection.commit()
 
 
-    def list_db(self):
+    def get_all_bids(self) -> list[dict]:
+        """
+        Retorna todas as licitações armazenadas no banco de dados.
 
-        self.db_cursor.execute(
+        Returns:
+            list[dict]: Lista de licitações representadas como dicionários.
+        """
+
+        self.cursor.execute(
             """
             SELECT * FROM licitacoes
             """
@@ -94,13 +106,20 @@ class PNCPDatabase:
 
         return [
             dict(row)
-            for row in self.db_cursor.fetchall()
+            for row in self.cursor.fetchall()
         ]
 
 
-    def update_embedding(self, bid_id, embedding):
+    def update_bid_embedding(self, bid_id, embedding):
+        """
+        Atualiza o embedding de uma licitação existente.
 
-        self.db_cursor.execute(
+        Args:
+            bid_id: Identificador da licitação.
+            embedding: Vetor de embedding associado à licitação.
+        """
+        
+        self.cursor.execute(
             """
             UPDATE licitacoes
             SET embedding = ?
@@ -112,18 +131,22 @@ class PNCPDatabase:
             )
         )
         
-        self.db_connector.commit()
+        self.connection.commit()
 
 
-    def run_database(self):
+    def initialize(self):
+        """
+        Inicializa a estrutura do banco e sincroniza as licitações
+        disponíveis no PNCP.
+        """
         self.create_db()
-        self.update_db()
+        self.sync_bids()
         
 
 if __name__ == "__main__":
 
-    db = PNCPDatabase()
+    db = BidDatabase()
 
     db.create_db()
 
-    db.update_db()
+    db.sync_bids()

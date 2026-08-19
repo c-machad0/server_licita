@@ -1,26 +1,32 @@
 import json
+import os
+
 import numpy as np
+
+from dotenv import load_dotenv
 
 from cnpj_server.cnpj_client import CNPJClient
 from embeddings.embedding_service import EmbeddingService
-from pncp_server.pncp_database import PNCPDatabase
+from pncp_server.pncp_database import BidDatabase
 
+
+load_dotenv()
 
 class Matcher:
 
 
     def __init__(self, cnpj):
 
-        self.company_data = CNPJClient(cnpj)
-        self.licitacao_db = PNCPDatabase()
-        self.licitacao_db.run_database()
-        self.service_embeddings = EmbeddingService()
+        self.company_client = CNPJClient(cnpj)
+        self.bid_database = BidDatabase()
+        self.bid_database.initialize()
+        self.embedding_service = EmbeddingService()
         
 
-    def cosine_similarity(self, vector_a, vector_b):
+    def cosine_similarity(self, vector_a, vector_b) -> float:
 
         """
-        Calcula similaridade entre dois embeddings
+        Calcula similaridade entre dois embeddings.
 
         Retorno:
             valor entre -1 e 1
@@ -32,25 +38,45 @@ class Matcher:
         a = np.array(vector_a)
         b = np.array(vector_b)
 
-        similarity = np.dot(a,b) / (np.linalg.norm(a) * np.linalg.norm(b))
+        norm_a = np.linalg.norm(a)
+        norm_b = np.linalg.norm(b)
 
-        return similarity
+        if norm_a == 0 or norm_b == 0:
+            return 0.0
 
+        similarity = np.dot(a, b) / (norm_a * norm_b)
 
-    def get_company_embedding(self):
+        return float(similarity)
 
-        company = self.company_data.get_company_info()
+    
+    def get_company_embedding(self) -> dict:
+        """
+        Obtém os dados da empresa e adiciona seu embedding ao dicionário
+        de informações.
 
-        company["embedding"] = self.service_embeddings.generate_company_embeddings(company)
+        Returns:
+            dict: Dados da empresa contendo o embedding gerado.
+        """
+
+        company = self.company_client.get_company_info()
+
+        company["embedding"] = self.embedding_service.generate_company_embedding(company)
 
         return company
 
 
-    def get_bids_embeddings(self):
+    def get_bid_embeddings(self) -> list[dict]:
+        """
+        Obtém as licitações armazenadas no banco e garante que cada uma
+        possua seu embedding.
 
-        bids = self.licitacao_db.list_db()
+        Returns:
+            list[dict]: Lista de licitações contendo seus embeddings.
+        """
 
-        self.service_embeddings.generate_bid_embeddings(bids)
+        bids = self.bid_database.get_all_bids()
+
+        self.embedding_service.generate_bid_embeddings(bids)
 
         result = []
 
@@ -91,21 +117,23 @@ class Matcher:
         return result
 
 
-    def match_company_bid(self):
-
+    def find_matching_bids(self) -> list[dict]:
         """
-        Retorna licitações compatíveis
-        com empresas.
+        Identifica as licitações semanticamente compatíveis com a empresa.
 
-        threshold:
-            percentual mínimo de similaridade
+        As licitações são comparadas com o embedding da empresa e somente
+        aquelas que atingem o limite mínimo de similaridade são retornadas.
+
+        Returns:
+            list[dict]: Licitações compatíveis ordenadas pela similaridade,
+            da maior para a menor.
         """
 
         company = self.get_company_embedding()
 
-        bids = self.get_bids_embeddings()
+        bids = self.get_bid_embeddings()
 
-        threshold=0.50
+        similarity_threshold = float(os.getenv("MATCH_THRESHOLD", "0.50"))
 
         matches = []
 
@@ -116,7 +144,7 @@ class Matcher:
             bid["embedding"]
             )
 
-            if score >= threshold:
+            if score >= similarity_threshold:
 
                 matches.append({
                     "licitacao": bid["objeto"],
@@ -139,7 +167,7 @@ if __name__ == "__main__":
 
     matcher = Matcher()
 
-    resultados = matcher.match_company_bid(
+    resultados = matcher.find_matching_bids(
         threshold=0.50
     )
 

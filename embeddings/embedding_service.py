@@ -2,18 +2,28 @@ import json
 
 from .embedding_client import EmbeddingClient
 
-from pncp_server.pncp_database import PNCPDatabase
+from pncp_server.pncp_database import BidDatabase
 
 
 class EmbeddingService:
 
     def __init__(self):
 
-        self.licitacao_db = PNCPDatabase()
+        self.bid_database = BidDatabase()
         self.embedding_client = EmbeddingClient()
 
 
-    def generate_company_embeddings(self, company):
+    def generate_company_embedding(self, company) -> list[float]:
+        """
+        Gera o embedding a partir das atividades econômicas da empresa.
+
+        Args:
+            company: Dados da empresa, incluindo CNAE principal e
+            atividades secundárias.
+
+        Returns:
+            list[float]: Vetor de embedding gerado para a empresa.
+        """
 
         text = f"""
             Atividades econômicas da empresa:
@@ -28,7 +38,16 @@ class EmbeddingService:
         return self.embedding_client.embed(text)
 
 
-    def generate_bid_embeddings(self, bids):
+    def generate_bid_embeddings(self, bids) -> None:
+        """
+        Gera os embeddings das licitações que ainda não possuem embedding.
+
+        As licitações processadas também recebem o embedding gerado
+        diretamente em seus respectivos dicionários.
+
+        Args:
+            bids: Lista de licitações a serem processadas.
+        """
 
         for bid in bids:
 
@@ -42,7 +61,7 @@ class EmbeddingService:
 
             embedding = self.embedding_client.embed(text)
 
-            self.licitacao_db.update_embedding(
+            self.bid_database.update_bid_embedding(
                 bid["id"],
                 embedding
             )
@@ -53,6 +72,6 @@ class EmbeddingService:
 if __name__ == '__main__':
     service = EmbeddingService()
 
-    service.generate_company_embeddings()
+    service.generate_company_embedding()
 
     service.generate_bid_embeddings()

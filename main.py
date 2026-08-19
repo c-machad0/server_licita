@@ -9,13 +9,14 @@ from notification.notify import Notify
 def main():
     cnpj = '61889727000166'
 
-    matches = Matcher(cnpj)
-    result = matches.match_company_bid()
+    matcher = Matcher(cnpj)
+    matches = matcher.find_matching_bids()
 
-    notification = Notify()
-    asyncio.run(notification.send_message(result))
+    notifier = Notify()
+    asyncio.run(notifier.send_message(matches))
     
     #pprint(result)
 
-run = main()
+if __name__ == "__main__":
+    main()
 
