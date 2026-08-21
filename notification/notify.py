@@ -1,11 +1,8 @@
 import os
 
-from dotenv import load_dotenv
 from telegram import Bot
 
 from .message_format import Formatter
-
-load_dotenv()
 
 
 class Notify:

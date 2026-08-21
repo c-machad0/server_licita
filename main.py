@@ -1,4 +1,5 @@
 import asyncio
+import os
 
 from dotenv import load_dotenv
 from pprint import pprint
@@ -14,22 +15,22 @@ load_dotenv()
 
 
 def main():
-    cnpj = '61889727000166'
+    cnpj = os.getenv('CNPJ')
 
     company_client = CNPJClient(cnpj)
     embedding_service = EmbeddingService()
-    bid_databse = BidDatabase()
+    bid_database = BidDatabase()
 
-    bid_databse.initialize()
+    bid_database.initialize()
 
     company = company_client.get_company_info()
     company["embedding"] = embedding_service.generate_company_embedding(company)
 
-    bids = bid_databse.get_all_bids()
+    bids = bid_database.get_all_bids()
     new_bids = embedding_service.generate_bid_embeddings(bids)
 
     for bid in new_bids:
-        bid_databse.update_bid_embedding(
+        bid_database.update_bid_embedding(
             bid["id"],
             bid["embedding"]
         )

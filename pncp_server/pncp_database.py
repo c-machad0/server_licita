@@ -34,12 +34,12 @@ class BidDatabase:
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS licitacoes(
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT,
                 municipio TEXT,
                 unidade TEXT,
                 data_abertura TEXT,
                 data_encerramento TEXT,
-                objeto TEXT UNIQUE,
+                objeto TEXT,
                 modalidade TEXT,
                 embedding TEXT
             )

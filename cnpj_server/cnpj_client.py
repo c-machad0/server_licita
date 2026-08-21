@@ -2,6 +2,9 @@ from pprint import pprint
 
 import requests
 
+from requests.adapters import HTTPAdapter
+from urllib3 import Retry
+
 
 class CNPJClient:
 
@@ -9,7 +12,17 @@ class CNPJClient:
 
         self.__base_url = "https://brasilapi.com.br/api/"
 
+        retry_strategy = Retry(
+            total=3,
+            status_forcelist=[408, 429, 500, 502, 504],
+            allowed_methods=['GET'],
+            backoff_factor=1,
+            respect_retry_after_header=True
+        )
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+
         self.session = requests.Session()
+        self.session.mount("https://", adapter)
 
         self.session.headers.update({
             "User-Agent": "pncp-client/1.0",
@@ -34,7 +47,7 @@ class CNPJClient:
 
         response = self.session.get(
             url,
-            timeout=60
+            timeout=(5, 15)
         )
 
         response.raise_for_status()
