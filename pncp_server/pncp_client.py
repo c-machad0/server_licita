@@ -1,7 +1,10 @@
+import time
+
 from datetime import datetime, timedelta
 from pprint import pprint
 
 import requests
+
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
@@ -29,7 +32,6 @@ class PNCPClient:
                 })
         
         self.configure_date_range()
-        self.data = {}
 
 
     def configure_date_range(self):
@@ -46,48 +48,94 @@ class PNCPClient:
         self.end_date = future_date.strftime("%Y%m%dT08:00:00")
 
 
-    def get_pncp_bids(self) -> list[dict]:
+    def get_pncp_bids(self):
         """
-        Consulta as contratações disponíveis no PNCP dentro do período
-        configurado e retorna os dados filtrados para o sistema.
+        Consulta as licitações disponíveis no PNCP no período configurado.
+
+        A consulta percorre todas as páginas disponíveis e retorna as licitações
+        encontradas em uma única lista.
+
+        Returns:
+        list[dict]: Lista contendo todas as licitações encontradas.
+        """
+        return self.bid_pagination()
+
+
+    def fetch_page(self, page) -> list[dict]:
+        """
+        Consulta uma página de licitações disponíveis no PNCP.
+
+        Args:
+            page (int): Número da página a ser consultada.
+
+        Returns:
+        list[dict]: Lista de licitações encontradas na página. Retorna uma
+            lista vazia quando a API não possui mais registros.
         """
 
         url = f"{self.__base_url}/v1/contratacoes/proposta"
 
         params = {
-            "pagina": 1,
+            "pagina": page,
             "tamanhoPagina": 50,
             "dataInicial": self.start_date,
             "dataFinal": self.end_date,
             "uf": "BA",
         }
 
-        try:
-            response = self.session.get(
-                url,
-                params=params,
-                timeout=(10, 60)
-            )
+        response = self.session.get(
+            url,
+            params=params,
+            timeout=(10, 60)
+        )
 
-            response.raise_for_status()
-
-            self.data = response.json()
-
-            if self.data:
-                filter_contracts = self.format_bids()
-
-                return filter_contracts
-
-        except requests.exceptions.RequestException as e:
-            print(f"Erro ao consultar a API: {e}")
-            self.data = {}
+        response.raise_for_status()
+        
+        if response.status_code == 204:
             return []
+        
+        bid_data = response.json()
+
+        return self.format_bids(bid_data)
 
 
-    def format_bids(self) -> list[dict]:
+    def bid_pagination(self) -> list[dict]:
+        """
+        Percorre sequencialmente as páginas de licitações do PNCP.
+
+        A consulta continua enquanto houver registros. Quando a API retorna uma
+        página sem conteúdo, a paginação é encerrada.
+
+        Returns:
+        list[dict]: Lista contendo todas as licitações encontradas em todas
+            as páginas consultadas.
+        """
+        
+        page = 1
+        bids = []
+
+        while True:
+            response = self.fetch_page(page)
+
+            if not response:
+                break
+
+            bids.extend(response)
+            page += 1
+
+            time.sleep(2)
+            
+        return bids
+
+
+    def format_bids(self, data) -> list[dict]:
         """
         Extrai e organiza os campos relevantes das contratações retornadas
         pela API do PNCP.
+
+        Args:
+        data (dict): Resposta da API do PNCP contendo as licitações no campo
+            ``data``.
 
         Returns:
             list[dict]: Lista contendo município, unidade, datas, objeto
@@ -103,7 +151,7 @@ class PNCPClient:
                 "objetoCompra": item.get("objetoCompra"),
                 "modalidadeNome": item.get("modalidadeNome"),
             }
-            for item in self.data.get("data", [])
+            for item in data.get("data", [])
         ]
 
 
