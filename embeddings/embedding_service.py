@@ -22,15 +22,15 @@ class EmbeddingService:
             list[float]: Vetor de embedding gerado para a empresa.
         """
 
-        text = f"""
-            Atividades econômicas da empresa:
+        activities = [
+            company["cnae_principal"],
+            *company["cnaes_secundarios"]
+        ]
 
-            Atividade principal:
-            {company['cnae_principal']}
-
-            Atividades secundárias:
-            {", ".join(company['cnaes_secundarios'])}
-            """
+        text = (
+        "Segmentos e atividades econômicas da empresa:\n"
+        + "\n".join(f"- {activity}" for activity in activities)
+        )
 
         return self.embedding_client.embed(text)
 

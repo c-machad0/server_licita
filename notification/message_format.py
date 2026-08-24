@@ -1,3 +1,4 @@
+from datetime import datetime
 
 
 class Formatter:
@@ -14,18 +15,22 @@ class Formatter:
             str: Mensagem formatada para o usuário.
         """
 
+        today = datetime.today().strftime("%d/%m/%Y")
+
         return f"""
-            🔔 Nova oportunidade encontrada!
+        🔔 Nova oportunidade encontrada!
 
-            📋 Licitação:
-            {bid.get('licitacao')}
+        📅 Data de busca: {today}
 
-            📌 Modalidade:
-            {bid.get('modalidade')}
+        📋 Objeto da Licitação:
+        {bid.get('licitacao')}
 
-            📍 Município:
-            {bid.get('municipio')}
+        📌 Modalidade:
+        {bid.get('modalidade')}
 
-            🎯 Similaridade:
-            {bid.get('similaridade')}
-            """
+        📍 Município:
+        {bid.get('municipio')}
+
+        🎯 Similaridade:
+        {bid.get('similaridade')}
+        """.strip()

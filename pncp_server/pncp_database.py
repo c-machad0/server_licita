@@ -34,7 +34,8 @@ class BidDatabase:
         self.cursor.execute(
             """
             CREATE TABLE IF NOT EXISTS licitacoes(
-                id INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT,
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_contratacao TEXT UNIQUE NOT NULL,
                 municipio TEXT,
                 unidade TEXT,
                 data_abertura TEXT,
@@ -97,11 +98,13 @@ class BidDatabase:
         Returns:
             list[dict]: Lista de licitações representadas como dicionários.
         """
+        modalidade = 'Dispensa'
 
         self.cursor.execute(
             """
-            SELECT * FROM licitacoes
-            """
+            SELECT * FROM licitacoes WHERE modalidade = ?
+            """,
+            (modalidade,)
         )
 
         return [
