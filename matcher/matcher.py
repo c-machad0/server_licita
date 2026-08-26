@@ -53,13 +53,22 @@ class Matcher:
 
         for bid in bids:
 
-            score = self.cosine_similarity(
-            company["embedding"],
-            bid["embedding"]
-            )
+            activities = []
 
-            if score >= self.threshold:
+            for activity in company["embedding"]:
 
+                score = self.cosine_similarity(
+                activity["embedding"],
+                bid["embedding"]
+                )
+
+                if score >= self.threshold:
+                    activities.append({
+                        "atividade": activity["atividade"],
+                        "similaridade": round(score * 100, 2)
+                    })
+
+            if activities:
                 matches.append({
                     "licitacao": bid["objeto"],
                     "modalidade": bid["modalidade"],
@@ -67,11 +76,11 @@ class Matcher:
                     "municipio": bid["municipio"],
                     "data_abertura": bid["data_abertura"],
                     "data_encerramento": bid["data_encerramento"],
-                    "similaridade": float(round(score * 100, 2))
+                    "atividades": sorted(
+                        activities,
+                        key=lambda x:x["similaridade"],
+                        reverse=True
+                    )
                 })
 
-        return sorted(
-            matches,
-            key=lambda x:x["similaridade"],
-            reverse=True
-        )
+        return matches

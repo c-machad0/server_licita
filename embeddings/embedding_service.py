@@ -10,7 +10,7 @@ class EmbeddingService:
         self.embedding_client = EmbeddingClient()
 
 
-    def generate_company_embedding(self, company) -> list[float]:
+    def generate_company_embeddings(self, company) -> list[dict]:
         """
         Gera o embedding a partir das atividades econômicas da empresa.
 
@@ -27,12 +27,20 @@ class EmbeddingService:
             *company["cnaes_secundarios"]
         ]
 
-        text = (
-        "Segmentos e atividades econômicas da empresa:\n"
-        + "\n".join(f"- {activity}" for activity in activities)
-        )
+        embeddings = []
 
-        return self.embedding_client.embed(text)
+        for activity in activities:
+            if not activity:
+                continue
+
+            text = f"Atividade econômica: {activity}"
+
+            embeddings.append({
+                "atividade": activity,
+                "embedding": self.embedding_client.embed(text)
+            })
+
+        return embeddings
 
 
     def generate_bid_embeddings(self, bids) -> None:
@@ -50,10 +58,7 @@ class EmbeddingService:
                 bid["embedding"] = json.loads(bid["embedding"])
                 continue
 
-            text = f"""
-            Objeto da contratação:
-            {bid['objeto']}
-            """
+            text = f"Objeto da contratação: {bid['objeto']}"
 
             embedding = self.embedding_client.embed(text)
 

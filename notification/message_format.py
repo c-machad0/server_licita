@@ -17,6 +17,12 @@ class Formatter:
 
         today = datetime.today().strftime("%d/%m/%Y")
 
+        activities = "\n".join(
+            f"- {activity['atividade']} - "
+            f"{activity['similaridade']}%"
+            for activity in bid.get("atividades", [])
+        )
+
         return f"""
         🔔 Nova oportunidade encontrada!
 
@@ -31,6 +37,6 @@ class Formatter:
         📍 Município:
         {bid.get('municipio')}
 
-        🎯 Similaridade:
-        {bid.get('similaridade')}
+        🎯 Atividades relacionadas:
+        {activities}
         """.strip()
