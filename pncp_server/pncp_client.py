@@ -143,7 +143,7 @@ class PNCPClient:
         """
 
         return [
-            {
+            {   "numeroControlePNCP": item.get("numeroControlePNCP"),
                 "nomeUnidade": item.get("unidadeOrgao", {}).get("nomeUnidade"),
                 "municipioNome": item.get("unidadeOrgao", {}).get("municipioNome"),
                 "dataAberturaProposta": item.get("dataAberturaProposta"),

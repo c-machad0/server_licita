@@ -35,7 +35,7 @@ class BidDatabase:
             """
             CREATE TABLE IF NOT EXISTS licitacoes(
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                id_contratacao TEXT UNIQUE NOT NULL,
+                id_pncp TEXT UNIQUE NOT NULL,
                 municipio TEXT,
                 unidade TEXT,
                 data_abertura TEXT,
@@ -65,7 +65,8 @@ class BidDatabase:
                 """
                 INSERT OR IGNORE INTO licitacoes
 
-                (
+                (   
+                    id_pncp,
                     municipio,
                     unidade,
                     data_abertura,
@@ -74,11 +75,12 @@ class BidDatabase:
                     modalidade
                 )
 
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
 
                 """,
 
-                (
+                (   
+                    item["numeroControlePNCP"],
                     item["municipioNome"],
                     item["nomeUnidade"],
                     item["dataAberturaProposta"],
