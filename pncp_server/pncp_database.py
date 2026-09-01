@@ -42,6 +42,7 @@ class BidDatabase:
                 data_encerramento TEXT,
                 objeto TEXT,
                 modalidade TEXT,
+                link TEXT,
                 embedding TEXT
             )
             """
@@ -72,10 +73,11 @@ class BidDatabase:
                     data_abertura,
                     data_encerramento,
                     objeto,
-                    modalidade
+                    modalidade,
+                    link
                 )
 
-                VALUES (?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 
                 """,
 
@@ -86,7 +88,8 @@ class BidDatabase:
                     item["dataAberturaProposta"],
                     item["dataEncerramentoProposta"],
                     item["objetoCompra"],
-                    item["modalidadeNome"]
+                    item["modalidadeNome"],
+                    item["linkSistemaOrigem"],
                 )
             )
 

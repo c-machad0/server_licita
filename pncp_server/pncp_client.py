@@ -1,3 +1,4 @@
+import json
 import time
 
 from datetime import datetime, timedelta
@@ -150,6 +151,7 @@ class PNCPClient:
                 "dataEncerramentoProposta": item.get("dataEncerramentoProposta"),
                 "objetoCompra": item.get("objetoCompra"),
                 "modalidadeNome": item.get("modalidadeNome"),
+                "linkSistemaOrigem": item.get("linkSistemaOrigem"),
             }
             for item in data.get("data", [])
         ]
@@ -158,7 +160,7 @@ class PNCPClient:
 if __name__ == "__main__":
 
     client = PNCPClient()
-    filter_response = client.get_pncp_bids() # Captura todas as licitações
-    # filter_response = client.filter_pncp_contracts() # Filtra somente as informações necessárias
+    filter_response = client.get_pncp_bids()
 
-    pprint(filter_response)
+    with open("contratacoes_filtradas.json", "w", encoding="utf-8") as file:
+        json.dump(filter_response, file, ensure_ascii=False, indent=4)
