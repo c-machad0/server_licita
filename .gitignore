@@ -183,3 +183,4 @@ teste2.py
 databases/
 .env
 match.json
+logging_config.py

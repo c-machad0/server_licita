@@ -37,6 +37,18 @@ class Formatter:
         📍 Município:
         {bid.get('municipio')}
 
+        🏛️ Unidade:
+        {bid.get('unidade')}
+
+        📅 Data de abertura de proposta:
+        {bid.get('data_abertura')}
+
+        📅 Data de encerramento de proposta:
+        {bid.get('data_encerramento')}
+
+        🔗 Link:
+        {bid.get('link')}
+
         🎯 Atividades relacionadas:
         {activities}
         """.strip()

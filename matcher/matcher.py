@@ -76,6 +76,7 @@ class Matcher:
                     "municipio": bid["municipio"],
                     "data_abertura": bid["data_abertura"],
                     "data_encerramento": bid["data_encerramento"],
+                    "link": bid["link"],
                     "atividades": sorted(
                         activities,
                         key=lambda x:x["similaridade"],

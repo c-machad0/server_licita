@@ -27,7 +27,7 @@ def main():
         bid_database.initialize()
 
         company = company_client.get_company_info()
-        company["embedding"] = embedding_service.generate_company_embedding(company)
+        company["embedding"] = embedding_service.generate_company_embeddings(company)
 
         bids = bid_database.get_all_bids()
         new_bids = embedding_service.generate_bid_embeddings(bids)
