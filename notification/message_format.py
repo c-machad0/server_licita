@@ -3,7 +3,8 @@ from datetime import datetime
 
 class Formatter:
 
-    def format_message(self, bid: dict) -> str:
+    @staticmethod
+    def format_message(bid: dict) -> str:
         """
         Formata uma licitação compatível em uma mensagem para envio
         pelo Telegram.
@@ -19,7 +20,7 @@ class Formatter:
 
         activities = "\n".join(
             f"- {activity['atividade']} - "
-            f"{activity['similaridade']}%"
+            f"{activity['similaridade']}%".replace('.', ',')
             for activity in bid.get("atividades", [])
         )
 
@@ -47,7 +48,7 @@ class Formatter:
         {bid.get('data_encerramento')}
 
         🔗 Link:
-        {bid.get('link')}
+        {bid.get('link', 'Não informado')}
 
         🎯 Atividades relacionadas:
         {activities}

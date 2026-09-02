@@ -7,7 +7,11 @@ class Matcher:
 
     def __init__(self, threshold=None):
 
-        self.threshold = float(os.getenv("MATCH_THRESHOLD", "0.50"))
+        self.threshold = (
+            threshold
+            if threshold is not None
+            else float(os.getenv("MATCH_THRESHOLD", "0.50"))
+            )
         
 
     @staticmethod
