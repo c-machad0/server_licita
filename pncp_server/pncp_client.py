@@ -147,8 +147,8 @@ class PNCPClient:
             {   "numeroControlePNCP": item.get("numeroControlePNCP"),
                 "nomeUnidade": item.get("unidadeOrgao", {}).get("nomeUnidade"),
                 "municipioNome": item.get("unidadeOrgao", {}).get("municipioNome"),
-                "dataAberturaProposta": item.get("dataAberturaProposta"),
-                "dataEncerramentoProposta": item.get("dataEncerramentoProposta"),
+                "dataAberturaProposta": datetime.fromisoformat(item.get("dataAberturaProposta")).strftime("%d/%m/%Y %H:%M"),
+                "dataEncerramentoProposta": datetime.fromisoformat(item.get("dataEncerramentoProposta")).strftime("%d/%m/%Y %H:%M"),
                 "objetoCompra": item.get("objetoCompra"),
                 "modalidadeNome": item.get("modalidadeNome"),
                 "linkSistemaOrigem": item.get("linkSistemaOrigem"),
@@ -162,5 +162,7 @@ if __name__ == "__main__":
     client = PNCPClient()
     filter_response = client.get_pncp_bids()
 
-    with open("contratacoes_filtradas.json", "w", encoding="utf-8") as file:
-        json.dump(filter_response, file, ensure_ascii=False, indent=4)
+    pprint(filter_response)
+    
+    # with open("contratacoes_filtradas.json", "w", encoding="utf-8") as file:
+    #     json.dump(filter_response, file, ensure_ascii=False, indent=4)

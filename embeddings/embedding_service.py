@@ -43,7 +43,7 @@ class EmbeddingService:
         return embeddings
 
 
-    def generate_bid_embeddings(self, bids) -> None:
+    def generate_bid_embeddings(self, bids) -> list[dict]:
         """
         Gera embeddings para licitações que ainda não possuem embedding.
 

@@ -29,17 +29,19 @@ def main():
         company = company_client.get_company_info()
         company["embedding"] = embedding_service.generate_company_embeddings(company)
 
-        bids = bid_database.get_all_bids()
+        bids = bid_database.sync_bids()
         new_bids = embedding_service.generate_bid_embeddings(bids)
 
         for bid in new_bids:
             bid_database.update_bid_embedding(
-                bid["id"],
+                bid["id_pncp"],
                 bid["embedding"]
             )
 
+        bid_database.connection.commit()
+
         matcher = Matcher()
-        matches = matcher.find_matching_bids(company, bids)
+        matches = matcher.find_matching_bids(company, new_bids)
 
         notifier = Notify()
         asyncio.run(notifier.send_message(matches))

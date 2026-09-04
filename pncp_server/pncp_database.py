@@ -8,7 +8,6 @@ from .pncp_client import PNCPClient
 
 class BidDatabase:
 
-
     def __init__(self):
 
         base_dir = Path(__file__).resolve().parent.parent
@@ -60,8 +59,25 @@ class BidDatabase:
         client = PNCPClient()
         pncp_response = client.get_pncp_bids()
 
+        new_bids = []
+
         for item in pncp_response:
 
+            # Essa condição pode ser tanto alterada, para conter outra modalidade, quanto retirada por completo
+            if item["modalidadeNome"] != "Dispensa":
+                continue
+
+            bid = {
+            "id_pncp": item["numeroControlePNCP"],
+            "municipio": item["municipioNome"],
+            "unidade": item["nomeUnidade"],
+            "data_abertura": item["dataAberturaProposta"],
+            "data_encerramento": item["dataEncerramentoProposta"],
+            "objeto": item["objetoCompra"],
+            "modalidade": item["modalidadeNome"],
+            "link": item["linkSistemaOrigem"],
+            }
+            
             self.cursor.execute(
                 """
                 INSERT OR IGNORE INTO licitacoes
@@ -82,18 +98,23 @@ class BidDatabase:
                 """,
 
                 (   
-                    item["numeroControlePNCP"],
-                    item["municipioNome"],
-                    item["nomeUnidade"],
-                    item["dataAberturaProposta"],
-                    item["dataEncerramentoProposta"],
-                    item["objetoCompra"],
-                    item["modalidadeNome"],
-                    item["linkSistemaOrigem"],
+                    bid["id_pncp"],
+                    bid["municipio"],
+                    bid["unidade"],
+                    bid["data_abertura"],
+                    bid["data_encerramento"],
+                    bid["objeto"],
+                    bid["modalidade"],
+                    bid["link"],
                 )
             )
 
+            if self.cursor.rowcount > 0:
+                new_bids.append(bid)
+
         self.connection.commit()
+
+        return new_bids
 
 
     def get_all_bids(self) -> list[dict]:
@@ -118,12 +139,12 @@ class BidDatabase:
         ]
 
 
-    def update_bid_embedding(self, bid_id, embedding):
+    def update_bid_embedding(self, id_pncp, embedding):
         """
         Atualiza o embedding de uma licitação existente.
 
         Args:
-            bid_id: Identificador da licitação.
+            id_pncp: Identificador da licitação no PNCP.
             embedding: Vetor de embedding associado à licitação.
         """
         
@@ -131,15 +152,13 @@ class BidDatabase:
             """
             UPDATE licitacoes
             SET embedding = ?
-            WHERE id = ?
+            WHERE id_pncp = ?
             """,
             (
                 json.dumps(embedding),
-                bid_id
+                id_pncp
             )
         )
-        
-        self.connection.commit()
 
 
     def initialize(self):
@@ -148,7 +167,6 @@ class BidDatabase:
         disponíveis no PNCP.
         """
         self.create_db()
-        self.sync_bids()
         
 
 if __name__ == "__main__":
