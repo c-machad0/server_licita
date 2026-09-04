@@ -2,7 +2,7 @@ import os
 
 from telegram import Bot
 
-from .message_format import Formatter
+from .formatter import Formatter
 
 
 class Notify:

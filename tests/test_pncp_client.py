@@ -1,4 +1,4 @@
-from pncp_server.pncp_client import PNCPClient
+from app.pncp.client import PNCPClient
 
 def test_configure_date_range():
     assert PNCPClient().start_date.endswith("T08:00:00")

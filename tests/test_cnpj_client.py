@@ -1,6 +1,6 @@
 from unittest.mock import Mock
 
-from cnpj_server.cnpj_client import CNPJClient
+from app.cnpj.client import CNPJClient
 
 def test_get_company_info():
 

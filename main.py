@@ -6,11 +6,11 @@ import requests
 from dotenv import load_dotenv
 from pprint import pprint
 
-from cnpj_server.cnpj_client import CNPJClient
-from embeddings.embedding_service import EmbeddingService
-from matcher.matcher import Matcher
-from notification.notify import Notify
-from pncp_server.pncp_database import BidDatabase
+from app.cnpj.client import CNPJClient
+from app.embeddings.service import EmbeddingService
+from app.matching.matcher import Matcher
+from app.notification.notifier import Notify
+from app.pncp.database import BidDatabase
 
 
 load_dotenv()

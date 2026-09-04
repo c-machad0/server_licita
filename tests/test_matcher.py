@@ -1,4 +1,4 @@
-from matcher.matcher import Matcher
+from app.matching.matcher import Matcher
 
 def test_cosine_similarity_identical_vectors():
 

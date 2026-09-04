@@ -2,7 +2,7 @@ import json
 import sqlite3
 from pathlib import Path
 
-from .pncp_client import PNCPClient
+from .client import PNCPClient
 
 
 

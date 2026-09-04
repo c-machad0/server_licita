@@ -1,4 +1,4 @@
-from notification.message_format import Formatter
+from app.notification.formatter import Formatter
 
 def test_format_message():
     bid = {

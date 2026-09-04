@@ -1,6 +1,6 @@
 import json
 
-from .embedding_client import EmbeddingClient
+from .client import EmbeddingClient
 
 
 class EmbeddingService:
