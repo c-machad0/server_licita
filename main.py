@@ -1,10 +1,10 @@
 import asyncio
 import os
+import time
 
 import requests
 
 from dotenv import load_dotenv
-from pprint import pprint
 
 from app.cnpj.client import CNPJClient
 from app.embeddings.service import EmbeddingService
@@ -12,13 +12,20 @@ from app.matching.matcher import Matcher
 from app.notification.notifier import Notify
 from app.pncp.database import BidDatabase
 
+from logging_config import get_logger
+
 
 load_dotenv()
 
 
 def main():
+    logger = get_logger(__name__)
+    start_time = time.time()
+
     try:
-        cnpj = os.getenv('CNPJ')
+        logger.info("Iniciando execução")
+
+        cnpj = os.getenv("CNPJ")
 
         company_client = CNPJClient(cnpj)
         embedding_service = EmbeddingService()
@@ -32,6 +39,12 @@ def main():
         bids = bid_database.sync_bids()
         new_bids = embedding_service.generate_bid_embeddings(bids)
 
+        if not new_bids:
+            logger.warning(
+                "Nenhuma nova licitação encontrada para processamento. "
+                "Sincronização concluída, mas não há novos registros para gerar embeddings."
+            )
+
         for bid in new_bids:
             bid_database.update_bid_embedding(
                 bid["id_pncp"],
@@ -43,14 +56,28 @@ def main():
         matcher = Matcher()
         matches = matcher.find_matching_bids(company, new_bids)
 
+        if not matches:
+            logger.warning(
+                "Nenhuma licitação compatível encontrada para a empresa. "
+            )
+
         notifier = Notify()
         asyncio.run(notifier.send_message(matches))
-    
-        #pprint(matches)
 
-    except requests.exceptions.RequestException as error:
-        print(f'Erro na requisição: {error}')
+        logger.info(
+            "Execução concluída em %.2f segundos | "
+            "Embeddings de licitações geradas: %d | "
+            "Licitações compatíveis encontradas: %d",
+            time.time() - start_time,
+            len(new_bids),
+            len(matches)
+        )
 
+    except Exception:
+        logger.exception("Erro inesperado durante execução")
+
+    finally:
+        logger.info("Fim da execução")
 
 if __name__ == "__main__":
     main()

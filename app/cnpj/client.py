@@ -5,10 +5,13 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
+from logging_config import get_logger
 
 class CNPJClient:
 
     def __init__(self, cnpj):
+
+        self.logger = get_logger(__name__)
 
         self.__base_url = "https://brasilapi.com.br/api/"
 
@@ -45,35 +48,44 @@ class CNPJClient:
 
         url = f"{self.__base_url}cnpj/v1/{self.cnpj}"
 
-        response = self.session.get(
-            url,
-            timeout=(5, 15)
-        )
+        try:
+            self.logger.info("Coletando dados da empresa.")
 
-        response.raise_for_status()
+            response = self.session.get(
+                url,
+                timeout=(5, 15)
+            )
 
-        data = response.json()
+            response.raise_for_status()
 
-        return {
+            data = response.json()
 
-            "razao_social":
-                data.get("razao_social"),
+            self.logger.info("Coleta de dados feita com sucesso!")
 
-            "cnpj":
-                data.get("cnpj"),
+            return {
 
-            "cnae_principal":
-                data.get("cnae_fiscal_descricao"),
+                "razao_social":
+                    data.get("razao_social"),
 
-            "cnaes_secundarios":
-                [
-                    cnae.get("descricao")
-                    for cnae in data.get(
-                        "cnaes_secundarios",
-                        []
-                    )
-                ]
-        }
+                "cnpj":
+                    data.get("cnpj"),
+
+                "cnae_principal":
+                    data.get("cnae_fiscal_descricao"),
+
+                "cnaes_secundarios":
+                    [
+                        cnae.get("descricao")
+                        for cnae in data.get(
+                            "cnaes_secundarios",
+                            []
+                        )
+                    ]
+            }
+        
+        except requests.exceptions.RequestException:
+            self.logger.exception("Falha na requisição HTTP")
+            raise
 
 if __name__ == '__main__':
     client = CNPJClient("61889727000166")
