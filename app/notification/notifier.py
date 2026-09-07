@@ -22,10 +22,19 @@ class Notify:
 
     async def send_message(self, matches):
         """
-        Envia uma notificação no Telegram para cada licitação compatível.
-
-        Args:
-            matches: Lista de licitações compatíveis com a empresa.
+        Envia uma mensagem no Telegram para cada licitação compatível. 
+        
+        Cada licitação é formatada individualmente antes do envio. Caso não 
+        existam licitações compatíveis, nenhuma mensagem é enviada. 
+        
+        Args: 
+            matches: Lista de licitações compatíveis com a empresa. 
+            
+        Raises: 
+            TelegramError: Se ocorrer uma falha durante o envio da mensagem 
+                
+                raise
+para o Telegram.
         """
 
         try:
@@ -46,3 +55,4 @@ class Notify:
 
         except TelegramError:
             self.logger.exception("Falha no envio das mensagens.")
+            raise

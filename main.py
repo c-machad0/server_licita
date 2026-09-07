@@ -2,8 +2,6 @@ import asyncio
 import os
 import time
 
-import requests
-
 from dotenv import load_dotenv
 
 from app.cnpj.client import CNPJClient
@@ -18,7 +16,13 @@ from logging_config import get_logger
 load_dotenv()
 
 
-def main():
+def main() -> None:
+    """ Executa o fluxo principal de sincronização e processamento das licitações. 
+    O fluxo consulta os dados da empresa, gera seus embeddings, sincroniza novas 
+    licitações com o banco de dados, gera os embeddings das novas licitações, realiza 
+    o matching semântico e envia as oportunidades compatíveis por Telegram. 
+    """
+
     logger = get_logger(__name__)
     start_time = time.time()
 

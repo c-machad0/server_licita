@@ -8,7 +8,10 @@ LOG_FILE = LOG_DIR / "log.log"
 
 
 def _setup_logging(logger: logging.Logger):
-    """Configura os handlers e o nível de logging do logger informado."""
+    """Configura os handlers, formato e nível de logging de um logger. 
+    Adiciona handlers para saída em arquivo e console, define o nível 
+    DEBUG e impede a propagação das mensagens para loggers ancestrais. 
+    """
 
     formatter = logging.Formatter(
         "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
@@ -33,12 +36,18 @@ def _setup_logging(logger: logging.Logger):
 
 
 def get_logger(name: str) -> logging.Logger:
-    """Retorna um logger configurado.
+    """
+    Retorna um logger configurado para o nome informado. 
     
-    Me dê um logger com o nome _configured. Se ele ainda não 
-    tiver sido configurado pela minha aplicação, configure-o 
-    primeiro. Se já tiver sido configurado, simplesmente devolva 
-    o logger existente.
+    Caso o logger ainda não tenha sido configurado pela aplicação, 
+    seus handlers e configurações de logging são inicializados antes de 
+    retorná-lo. 
+    
+    Args: 
+        name: Nome utilizado para identificar o logger. 
+    
+    Returns: 
+        logging.Logger: Logger configurado para a aplicação. 
     """
 
     logger = logging.getLogger(name)

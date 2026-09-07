@@ -39,12 +39,13 @@ class PNCPClient:
         self.logger = get_logger(__name__)
 
 
-    def configure_date_range(self):
+    def configure_date_range(self) -> None:
         """
         Configura o intervalo de datas utilizado nas consultas ao PNCP.
 
         Define a data inicial como a data atual e a data final como quatro
-        dias após a data atual, ambas formatadas no padrão esperado pela API.
+        dias após a data atual, ambas formatadas no padrão esperado pelos
+        parâmetors da API, utilizando 08:00:00 como horário.
         """
         date_today = datetime.today()
         future_date = date_today + timedelta(days=4)
@@ -76,6 +77,12 @@ class PNCPClient:
         Returns:
         list[dict]: Lista de licitações encontradas na página. Retorna uma
             lista vazia quando a API não possui mais registros.
+
+        Raises: 
+            requests.exceptions.RequestException: Se ocorrer uma falha 
+                durante a requisição HTTP. 
+            requests.exceptions.JSONDecodeError: Se a resposta não puder 
+                ser interpretada como JSON
         """
         try:
             self.logger.info(f"Consultando página %d do PNCP.", page)
@@ -173,12 +180,11 @@ class PNCPClient:
         pela API do PNCP.
 
         Args:
-        data (dict): Resposta da API do PNCP contendo as licitações no campo
-            ``data``.
+        data (dict): Resposta JSON retornada pela API do PNCP.
 
         Returns:
-            list[dict]: Lista contendo município, unidade, datas, objeto
-            e modalidade de cada contratação.
+            list[dict]: Lista de licitações contendo identificador PNCP, 
+            unidade, município, datas, objeto, modalidade e link.
         """
 
         return [

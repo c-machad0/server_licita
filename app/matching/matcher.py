@@ -22,13 +22,18 @@ class Matcher:
     def cosine_similarity(vector_a, vector_b) -> float:
 
         """
-        Calcula similaridade entre dois embeddings.
-
-        Retorno:
-            valor entre -1 e 1
-
-        Quanto mais próximo de 1,
-        mais semelhantes são os textos.
+        Calcula a similaridade de cosseno entre dois vetores. 
+        
+        A similaridade varia teoricamente entre -1 e 1. Quanto mais próximo 
+        de 1, maior a similaridade entre os vetores. Caso algum vetor possua 
+        norma zero, retorna 0.0 para evitar divisão por zero. 
+        
+        Args: 
+            vector_a: Primeiro vetor numérico. 
+            vector_b: Segundo vetor numérico. 
+        
+        Returns: 
+            float: Valor da similaridade de cosseno entre os dois vetores. 
         """
 
         a = np.array(vector_a)
@@ -47,13 +52,24 @@ class Matcher:
 
     def find_matching_bids(self, company, bids) -> list[dict]:
         """
-        Identifica as licitações semanticamente compatíveis com a empresa.
+        Identifica as licitações semanticamente compatíveis com as atividades
+        econômicas da empresa.
 
-        As licitações são comparadas com o embedding da empresa e somente
-        aquelas que atingem o limite mínimo de similaridade são retornadas.
+        Cada atividade econômica da empresa é comparada com o embedding de 
+        cada licitação. Uma licitação é considerada compatível quando pelo 
+        menos uma  atividade apresenta similaridade igual ou superior ao 
+        threshold configurado.
 
+        As atividades compatíveis são incluídas no resultado e ordenadas 
+        pela maior similaridade.
+
+        
+        Args: 
+            company: Dados da empresa contendo seus embeddings de atividades. 
+            bids: Lista de licitações contendo seus respectivos embeddings.
+            
         Returns:
-            list[dict]: Licitações compatíveis ordenadas pela similaridade,
+            list[dict]: Licitações compatíveis ordenadas pela similaridade, 
             da maior para a menor.
         """
         self.logger.info("Iniciando processo de matching.")

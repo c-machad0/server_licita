@@ -21,7 +21,7 @@ class EmbeddingService:
             atividades secundárias.
 
         Returns:
-            list[float]: Vetor de embedding gerado para a empresa.
+            list[dict]: Vetor de embedding gerado para a empresa.
         """
 
         activities = [
@@ -58,11 +58,20 @@ class EmbeddingService:
         """
         Gera embeddings para licitações que ainda não possuem embedding.
 
-        Retorna:
-            Lista de licitações que receberam um novo embedding.
+        Licitações que já possuem um embedding são mantidas sem uma nova 
+        chamada à API. Os embeddings existentes são desserializados para 
+        listas Python e as licitações que receberam novos embeddings são 
+        retornadas.
+
+        Args: 
+            bids: Lista de licitações a serem processadas.
+
+        Returns:
+            list[dict]: Lista contendo apenas as licitações que receberam 
+            um novo embedding.
         """
 
-        self.logger.info("Gerando embeddings da empresa | quantidade=%d",
+        self.logger.info("Gerando embeddings da das licitações | quantidade=%d",
                         len(bids)
         )
 

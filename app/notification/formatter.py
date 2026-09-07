@@ -9,6 +9,9 @@ class Formatter:
         Formata uma licitação compatível em uma mensagem para envio
         pelo Telegram.
 
+        Informações ausentes são representadas por valores vazios ou 
+        pelo valor padrão definido pelo formatador.
+
         Args:
             bid: Dados da licitação e sua respectiva similaridade.
 

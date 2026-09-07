@@ -44,6 +44,9 @@ class CNPJClient:
         Returns:
             dict: Dados da empresa, incluindo razão social, CNPJ,
             CNAE principal e CNAEs secundários.
+
+        Raises: 
+            requests.exceptions.RequestException: Se ocorrer uma falha na comunicação com a API.
         """
 
         url = f"{self.__base_url}cnpj/v1/{self.cnpj}"

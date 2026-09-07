@@ -28,9 +28,12 @@ class BidDatabase:
         self.create_db()
 
 
-    def create_db(self):
+    def create_db(self) -> None:
         """
         Cria a tabela de licitações caso ela ainda não exista.
+
+        A tabela utiliza o identificador PNCP como chave única para impedir 
+        a inserção duplicada de uma mesma licitação.
         """
 
         self.cursor.execute(
@@ -57,8 +60,17 @@ class BidDatabase:
 
     def sync_bids(self):
         """
-        Consulta as licitações disponíveis no PNCP e sincroniza os dados
-        com a tabela local de licitações.
+        Sincroniza as licitações do PNCP com o banco de dados local. 
+        
+        Consulta as contratações disponíveis no PNCP, filtra apenas as 
+        licitações da modalidade "Dispensa" e insere os novos registros 
+        na tabela local. 
+        
+        Licitações que já existem no banco são ignoradas. 
+        
+        Returns: 
+            list[dict]: Lista contendo apenas as novas licitações inseridas 
+            durante a sincronização.
         """
 
         self.logger.info("Sicronizando os dados...")
@@ -153,13 +165,17 @@ class BidDatabase:
         ]
 
 
-    def update_bid_embedding(self, id_pncp, embedding):
+    def update_bid_embedding(self, id_pncp: str, embedding: list[float]) -> None:
         """
         Atualiza o embedding de uma licitação existente.
 
         Args:
             id_pncp: Identificador da licitação no PNCP.
             embedding: Vetor de embedding associado à licitação.
+
+        Raises: 
+            sqlite3.Error: Se ocorrer um erro durante a atualização no banco 
+                de dados.
         """
 
         try:
