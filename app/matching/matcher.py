@@ -2,6 +2,8 @@ import os
 
 import numpy as np
 
+from logging_config import get_logger
+
 
 class Matcher:
 
@@ -12,6 +14,8 @@ class Matcher:
             if threshold is not None
             else float(os.getenv("MATCH_THRESHOLD", "0.50"))
             )
+
+        self.logger = get_logger(__name__)
         
 
     @staticmethod
@@ -52,6 +56,7 @@ class Matcher:
             list[dict]: Licitações compatíveis ordenadas pela similaridade,
             da maior para a menor.
         """
+        self.logger.info("Iniciando processo de matching.")
 
         matches = []
 
@@ -87,5 +92,12 @@ class Matcher:
                         reverse=True
                     )
                 })
+        self.logger.info(
+            "Matching concluído | licitações analisadas=%d | "
+            "compatíveis=%d | threshold=%.2f",
+            len(bids),
+            len(matches),
+            self.threshold
+        )
 
         return matches

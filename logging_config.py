@@ -35,7 +35,7 @@ def _setup_logging(logger: logging.Logger):
 def get_logger(name: str) -> logging.Logger:
     """Retorna um logger configurado.
     
-    Me dê um logger com esse nome. Se ele ainda não 
+    Me dê um logger com o nome _configured. Se ele ainda não 
     tiver sido configurado pela minha aplicação, configure-o 
     primeiro. Se já tiver sido configurado, simplesmente devolva 
     o logger existente.

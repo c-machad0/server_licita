@@ -1,6 +1,7 @@
 import json
 
 from .client import EmbeddingClient
+from logging_config import get_logger
 
 
 class EmbeddingService:
@@ -8,6 +9,7 @@ class EmbeddingService:
     def __init__(self):
 
         self.embedding_client = EmbeddingClient()
+        self.logger = get_logger(__name__)
 
 
     def generate_company_embeddings(self, company) -> list[dict]:
@@ -27,6 +29,10 @@ class EmbeddingService:
             *company["cnaes_secundarios"]
         ]
 
+        self.logger.info("Gerando embeddings da empresa | atividades=%d",
+                         len(activities)
+        )
+
         embeddings = []
 
         for activity in activities:
@@ -40,6 +46,11 @@ class EmbeddingService:
                 "embedding": self.embedding_client.embed(text)
             })
 
+        self.logger.info(
+                "Embeddings da empresa gerados | quantidade=%d",
+                len(embeddings)
+            )
+        
         return embeddings
 
 
@@ -50,6 +61,10 @@ class EmbeddingService:
         Retorna:
             Lista de licitações que receberam um novo embedding.
         """
+
+        self.logger.info("Gerando embeddings da empresa | quantidade=%d",
+                        len(bids)
+        )
 
         generated_bids = []
 
@@ -65,4 +80,10 @@ class EmbeddingService:
             bid["embedding"] = embedding
             generated_bids.append(bid)
 
+
+        self.logger.info(
+                "Embeddings das licitações gerados | quantidade=%d",
+                len(generated_bids)
+        )
+        
         return generated_bids

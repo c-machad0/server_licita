@@ -31,8 +31,6 @@ def main():
         embedding_service = EmbeddingService()
         bid_database = BidDatabase()
 
-        bid_database.initialize()
-
         company = company_client.get_company_info()
         company["embedding"] = embedding_service.generate_company_embeddings(company)
 
@@ -65,16 +63,17 @@ def main():
         asyncio.run(notifier.send_message(matches))
 
         logger.info(
-            "Execução concluída em %.2f segundos | "
-            "Embeddings de licitações geradas: %d | "
-            "Licitações compatíveis encontradas: %d",
+            "Execução concluída | duração=%.2fs | "
+            "novas licitações=%d | embeddings gerados=%d | matches=%d",
             time.time() - start_time,
+            len(bids),
             len(new_bids),
             len(matches)
         )
 
     except Exception:
         logger.exception("Erro inesperado durante execução")
+        raise
 
     finally:
         logger.info("Fim da execução")

@@ -9,6 +9,8 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
+from logging_config import get_logger
+
 
 class PNCPClient:
 
@@ -33,6 +35,8 @@ class PNCPClient:
                 })
         
         self.configure_date_range()
+
+        self.logger = get_logger(__name__)
 
 
     def configure_date_range(self):
@@ -73,31 +77,55 @@ class PNCPClient:
         list[dict]: Lista de licitações encontradas na página. Retorna uma
             lista vazia quando a API não possui mais registros.
         """
+        try:
+            self.logger.info(f"Consultando página %d do PNCP.", page)
 
-        url = f"{self.__base_url}/v1/contratacoes/proposta"
+            url = f"{self.__base_url}/v1/contratacoes/proposta"
 
-        params = {
-            "pagina": page,
-            "tamanhoPagina": 50,
-            "dataInicial": self.start_date,
-            "dataFinal": self.end_date,
-            "uf": "BA",
-        }
+            params = {
+                "pagina": page,
+                "tamanhoPagina": 50,
+                "dataInicial": self.start_date,
+                "dataFinal": self.end_date,
+                "uf": "BA",
+            }
 
-        response = self.session.get(
-            url,
-            params=params,
-            timeout=(10, 60)
-        )
+            response = self.session.get(
+                url,
+                params=params,
+                timeout=(10, 60)
+            )
 
-        response.raise_for_status()
-        
-        if response.status_code == 204:
-            return []
-        
-        bid_data = response.json()
+            response.raise_for_status()
+            
+            if response.status_code == 204:
+                self.logger.debug("PNCP | página=%d sem registros | encerrando paginação", page)
+                return []
+            
+            bid_data = response.json()
 
-        return self.format_bids(bid_data)
+            self.logger.info(
+                "Página %d processada | licitações=%d",
+                page,
+                len(bid_data)
+            )
+
+            return self.format_bids(bid_data)
+
+        except requests.exceptions.JSONDecodeError:
+            self.logger.error(
+                "Resposta inválida do PNCP | status=%s | content-type=%s | body=%r",
+                response.status_code,
+                response.headers.get("Content-Type"),
+                response.text[:500],
+                )
+            raise
+            
+        except requests.exceptions.RequestException:
+            self.logger.exception(
+                "Falha na requisição HTTP."
+            )
+            raise
 
 
     def bid_pagination(self) -> list[dict]:
@@ -111,6 +139,8 @@ class PNCPClient:
         list[dict]: Lista contendo todas as licitações encontradas em todas
             as páginas consultadas.
         """
+
+        self.logger.info("Consulta no portal PNCP, iniciada.")
         
         page = 1
         bids = []
@@ -125,7 +155,15 @@ class PNCPClient:
             page += 1
 
             time.sleep(2)
-            
+
+        self.logger.info(
+            "Fim da paginação | "
+            "Última página consultada: %d | "
+            "Quantidade de licitações retornadas: %d",
+            page,
+            len(bids)
+            )
+        
         return bids
 
 

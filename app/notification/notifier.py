@@ -1,8 +1,10 @@
 import os
 
 from telegram import Bot
+from telegram.error import TelegramError
 
 from .formatter import Formatter
+from logging_config import get_logger
 
 
 class Notify:
@@ -15,6 +17,8 @@ class Notify:
 
         self.message_formatter = Formatter()
 
+        self.logger = get_logger(__name__)
+
 
     async def send_message(self, matches):
         """
@@ -23,12 +27,22 @@ class Notify:
         Args:
             matches: Lista de licitações compatíveis com a empresa.
         """
-        
-        for bid in matches:
 
-            text_formatted = self.message_formatter.format_message(bid)
-            
-            await self.bot.send_message(
-                chat_id=self.chat_id,
-                text=text_formatted
-            )
+        try:
+
+            if matches:
+                for bid in matches:
+
+                    text_formatted = self.message_formatter.format_message(bid)
+                    
+                    await self.bot.send_message(
+                        chat_id=self.chat_id,
+                        text=text_formatted
+                    )
+
+                self.logger.info("Mensagens enviadas com sucesso!")
+            else:
+                self.logger.info("Sem novas mensagens a serem enviadas.")
+
+        except TelegramError:
+            self.logger.exception("Falha no envio das mensagens.")

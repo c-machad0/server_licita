@@ -3,6 +3,7 @@ import sqlite3
 from pathlib import Path
 
 from .client import PNCPClient
+from logging_config import get_logger
 
 
 
@@ -10,19 +11,21 @@ class BidDatabase:
 
     def __init__(self):
 
-        base_dir = Path(__file__).resolve().parent.parent
+        self.logger = get_logger(__name__)
 
+        base_dir = Path(__file__).resolve().parent.parent
         database_dir = base_dir / "databases"
 
-        database_dir.mkdir(exist_ok=True)
+        database_dir.mkdir(parents=True, exist_ok=True)
 
         db_path = database_dir / "licitacoes.db"
 
         self.connection = sqlite3.connect(db_path)
-
         self.connection.row_factory = sqlite3.Row
 
         self.cursor = self.connection.cursor()
+
+        self.create_db()
 
 
     def create_db(self):
@@ -49,6 +52,8 @@ class BidDatabase:
 
         self.connection.commit()
 
+        self.logger.info("Tabela 'licitacoes' verificada/criada com sucesso.")
+
 
     def sync_bids(self):
         """
@@ -56,8 +61,16 @@ class BidDatabase:
         com a tabela local de licitações.
         """
 
+        self.logger.info("Sicronizando os dados...")
+
         client = PNCPClient()
         pncp_response = client.get_pncp_bids()
+
+        if not pncp_response:
+            self.logger.warning(
+                "PNCP não retornou licitações para o período consultado."
+            )
+            return []
 
         new_bids = []
 
@@ -113,6 +126,7 @@ class BidDatabase:
                 new_bids.append(bid)
 
         self.connection.commit()
+        self.logger.info("Dados sincronizados com sucesso!")
 
         return new_bids
 
@@ -147,27 +161,26 @@ class BidDatabase:
             id_pncp: Identificador da licitação no PNCP.
             embedding: Vetor de embedding associado à licitação.
         """
-        
-        self.cursor.execute(
-            """
-            UPDATE licitacoes
-            SET embedding = ?
-            WHERE id_pncp = ?
-            """,
-            (
-                json.dumps(embedding),
+
+        try:
+            self.cursor.execute(
+                """
+                UPDATE licitacoes
+                SET embedding = ?
+                WHERE id_pncp = ?
+                """,
+                (
+                    json.dumps(embedding),
+                    id_pncp
+                )
+            )
+        except sqlite3.Error:
+            self.logger.exception(
+                "Erro ao atualizar embedding | id_pncp=%s",
                 id_pncp
             )
-        )
+            raise
 
-
-    def initialize(self):
-        """
-        Inicializa a estrutura do banco e sincroniza as licitações
-        disponíveis no PNCP.
-        """
-        self.create_db()
-        
 
 if __name__ == "__main__":
 
