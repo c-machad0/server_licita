@@ -1,4 +1,3 @@
-import json
 import time
 
 from datetime import datetime, timedelta
@@ -199,14 +198,3 @@ class PNCPClient:
             }
             for item in data.get("data", [])
         ]
-
-
-if __name__ == "__main__":
-
-    client = PNCPClient()
-    filter_response = client.get_pncp_bids()
-
-    pprint(filter_response)
-    
-    # with open("contratacoes_filtradas.json", "w", encoding="utf-8") as file:
-    #     json.dump(filter_response, file, ensure_ascii=False, indent=4)

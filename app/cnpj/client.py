@@ -1,11 +1,10 @@
-from pprint import pprint
-
 import requests
 
 from requests.adapters import HTTPAdapter
 from urllib3 import Retry
 
 from logging_config import get_logger
+
 
 class CNPJClient:
 
@@ -89,9 +88,3 @@ class CNPJClient:
         except requests.exceptions.RequestException:
             self.logger.exception("Falha na requisição HTTP")
             raise
-
-if __name__ == '__main__':
-    client = CNPJClient("61889727000166")
-    empresa = client.get_company_info()
-
-    pprint(empresa)
