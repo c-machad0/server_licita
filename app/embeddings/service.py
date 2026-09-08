@@ -12,6 +12,21 @@ class EmbeddingService:
         self.logger = get_logger(__name__)
 
 
+    def build_activity_text(self, activity: str) -> str:
+        return (
+            "Área de atuação empresarial:\n"
+            f"{activity}"
+        )
+
+
+    def build_bid_text(self, bid: dict) -> str:
+        return (
+            "Oportunidade de contratação pública:\n"
+            f"Modalidade: {bid['modalidade']}\n"
+            f"Objeto: {bid['objeto']}"
+        )
+
+
     def generate_company_embeddings(self, company) -> list[dict]:
         """
         Gera o embedding a partir das atividades econômicas da empresa.
@@ -39,7 +54,7 @@ class EmbeddingService:
             if not activity:
                 continue
 
-            text = f"Atividade econômica: {activity}"
+            text = self.build_activity_text(activity)
 
             embeddings.append({
                 "atividade": activity,
@@ -71,7 +86,7 @@ class EmbeddingService:
             um novo embedding.
         """
 
-        self.logger.info("Gerando embeddings da das licitações | quantidade=%d",
+        self.logger.info("Gerando embeddings das licitações | quantidade=%d",
                         len(bids)
         )
 
@@ -82,7 +97,7 @@ class EmbeddingService:
                 bid["embedding"] = json.loads(bid["embedding"])
                 continue
 
-            text = f"Objeto da contratação: {bid['objeto']}"
+            text = self.build_bid_text(bid)
 
             embedding = self.embedding_client.embed(text)
 

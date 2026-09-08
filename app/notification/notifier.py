@@ -31,10 +31,7 @@ class Notify:
             matches: Lista de licitações compatíveis com a empresa. 
             
         Raises: 
-            TelegramError: Se ocorrer uma falha durante o envio da mensagem 
-                
-                raise
-para o Telegram.
+            TelegramError: Se ocorrer uma falha durante o envio da mensagem para o Telegram.
         """
 
         try:
